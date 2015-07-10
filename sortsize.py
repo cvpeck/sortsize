@@ -58,7 +58,7 @@ def main():
                 import psyco
                 psyco.full()
             except ImportError:
-                if (not blnQuiet): print("WARNING: Psyco not found! This script will run MUCH more slowly without it.")
+                if (not opOtions.quiet): print("WARNING: Psyco not found! This script will run MUCH more slowly without it.")
             fnFind(intMaxSize, intMinSize, intMargin, opOptions.compatible, opOptions.verbose, opOptions.size, opOptions.logging, opOptions.fuse, opOptions.quiet)
             if opOptions.logging: logging.shutdown()
         else:
