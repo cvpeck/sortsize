@@ -38,7 +38,8 @@ def main():
     psParser.add_option("-L", "--logged", action = "store_true", dest = "logging", help = "enable logging in sortsize.log (the log is somewhat terse but does not slow the script down significantly when disabled) [default: %default]")
     psParser.add_option("-f", "--fuse", type = "int", dest = "fuse", help = "consider files with the same beginning N characters as one big file (for example \"file1\", \"file2\", \"file3\" become \"file\") [default: %default]", metavar = "N")
     psParser.add_option("-s", "--size", action = "store_true", dest = "size", help = "sort files by size instead of by name [default: %default]")
-    psParser.set_defaults(minimum = "1", margin = "0", compatible = False, verbose = False, size = False, logging = False, fuse = 4)
+    psParser.add_option("-q","--quiet",action = "store_true", dest = "quiet", help = "only output filenames [default: %default]")
+    psParser.set_defaults(minimum = "1", margin = "0", compatible = False, verbose = False, size = False, logging = False, fuse = 4, quiet = False)
     (opOptions, arArguments) = psParser.parse_args()
 
     # Check arguments
@@ -58,21 +59,21 @@ def main():
                 psyco.full()
             except ImportError:
                 print("WARNING: Psyco not found! This script will run MUCH more slowly without it.")
-            fnFind(intMaxSize, intMinSize, intMargin, opOptions.compatible, opOptions.verbose, opOptions.size, opOptions.logging, opOptions.fuse)
+            fnFind(intMaxSize, intMinSize, intMargin, opOptions.compatible, opOptions.verbose, opOptions.size, opOptions.logging, opOptions.fuse, opOptions.quiet)
             if opOptions.logging: logging.shutdown()
         else:
             psParser.print_help()
     else:
         psParser.print_help()
 
-def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose = False, blnSortBySize = False, blnLogging = False, intFuse = 0):
+def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose = False, blnSortBySize = False, blnLogging = False, intFuse = 0, blnQuiet = False):
     """Finds the combination of files that is larger than intMinimum and
     smaller than intMaximum."""
     # Retrieve a list of (filesize, filename) tuples for files with size
     # larger than intMinimum (that also excludes directories) and sort it.
     lstSizes = [(os.stat(x)[6], x) for x in os.listdir(".") if intMaximum >= os.stat(x)[6] >= intMinimum]
     if len(lstSizes) == 0:
-        print("There are no suitable files here.")
+        if (!blnQuiet): print("There are no suitable files here.")
         sys.exit()
     if intFuse > 0:
         lstSizes.sort(cmp=lambda x,y: cmp(x[1].lower(), y[1].lower()))
@@ -112,7 +113,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
 
         for intCounter in range(1, intMaxFiles + 1):
             if blnFinishedAll:
-                print("Filled all available space.\n")
+                if (!blnQuiet): print("Filled all available space.\n")
                 break
             if blnVerbose: print("Checking for %s file combinations..." % intCounter)
 
@@ -212,7 +213,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
     # Print the files
     intCurrentSize = 0
     lstFileList = []
-    print "Files:"
+    if (!blnQuiet): print "Files:"
     if blnLogging: logging.debug("lstFiles = %r" % lstFiles)
     for intIndex in lstFiles:
         lstFileList.append((lstSizes[intIndex][1], lstSizes[intIndex][0]))
@@ -228,7 +229,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
         else:
             print "%s %s" % (string.join(["    " + strItem.ljust(50) for strItem in strFilename.split("\n")], "\n"), ("(" + fnDotify(intFilesize)).rjust(17) + " bytes)")
         intCurrentSize += intFilesize
-    print "\nTotal: %s/%s bytes (%s%%)." % (fnDotify(intCurrentSize), fnDotify(intMaximum), str(intCurrentSize * 100 / intMaximum))
+    if (!blnQuiet): print "\nTotal: %s/%s bytes (%s%%)." % (fnDotify(intCurrentSize), fnDotify(intMaximum), str(intCurrentSize * 100 / intMaximum))
 
 def fnTransform(strBytes):
     """Expands strings containing "g", "m", "k", "d" or "c" (or "l" "m" "n" "o" "p" "q")to their numerical counterparts."""
