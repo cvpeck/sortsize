@@ -1,7 +1,31 @@
+#!/opt/local/bin/python
+
+"""@package sortsize
+Sorts files into optimum packing for various size media
+By 
+Modified by Chris Peck (chris.peck@internode.on.net) for new media capacities
+"""
+
 import os, sys, optparse, logging, string
+
+
 
 DVD_SIZE = 4700000000
 CD_SIZE = 736294912
+"""Blu ray sizes taken from https://en.wikipedia.org/wiki/Blu-ray#Blu-ray_Disc_recordable"""
+"""Standard BD disk, single layer"""
+BD_SL_SIZE = 25025314816
+"""Standard BD disk, dual layer"""
+BD_DL_SIZE = 50050629632
+"""Standard BD disk XL 3 layer"""
+BD_XL3_SIZE = 100103356416
+"""Standard BD disk XL 4 layer"""
+BD_XL4_SIZE = 128001769472
+"""Minidisc size, single layer"""
+MD_SL_SIZE = 7791181824
+"""Mini disc size, dual layer"""
+MD_DL_SIZE = 15582363648
+
 
 def main():
     """The main function."""
@@ -11,7 +35,7 @@ def main():
     psParser.add_option("-g", "--margin", dest = "margin", help = "leave a margin of at most SIZE bytes [default: %default]", metavar = "SIZE")
     psParser.add_option("-c", "--compatible", action = "store_true", dest = "compatible", help = "print a copy-compatible file list [default: %default]")
     psParser.add_option("-v", "--verbose", action = "store_true", dest = "verbose", help = "verbose mode [default: %default]")
-    psParser.add_option("-l", "--logged", action = "store_true", dest = "logging", help = "enable logging in sortsize.log (the log is somewhat terse but does not slow the script down significantly when disabled) [default: %default]")
+    psParser.add_option("-L", "--logged", action = "store_true", dest = "logging", help = "enable logging in sortsize.log (the log is somewhat terse but does not slow the script down significantly when disabled) [default: %default]")
     psParser.add_option("-f", "--fuse", type = "int", dest = "fuse", help = "consider files with the same beginning N characters as one big file (for example \"file1\", \"file2\", \"file3\" become \"file\") [default: %default]", metavar = "N")
     psParser.add_option("-s", "--size", action = "store_true", dest = "size", help = "sort files by size instead of by name [default: %default]")
     psParser.set_defaults(minimum = "1", margin = "0", compatible = False, verbose = False, size = False, logging = False, fuse = 4)
@@ -207,7 +231,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
     print "\nTotal: %s/%s bytes (%s%%)." % (fnDotify(intCurrentSize), fnDotify(intMaximum), str(intCurrentSize * 100 / intMaximum))
 
 def fnTransform(strBytes):
-    """Expands strings containing "g", "m", "k", "d" or "c" to their numerical counterparts."""
+    """Expands strings containing "g", "m", "k", "d" or "c" (or "l" "m" "n" "o" "p" "q")to their numerical counterparts."""
     strBytes = strBytes.strip()
     if strBytes[-1].lower() == "g":
         return(fnIsInt(strBytes[:-1]) * 1024 ** 3)
@@ -219,6 +243,18 @@ def fnTransform(strBytes):
         return(fnIsInt(strBytes[:-1]) * DVD_SIZE)
     elif strBytes[-1].lower() == "c":
         return(fnIsInt(strBytes[:-1]) * CD_SIZE)
+    elif strBytes[-1].lower() == "l":
+        return(fnIsInt(strBytes[:-1]) * BD_SL_SIZE)
+    elif strBytes[-1].lower() == "m":
+        return(fnIsInt(strBytes[:-1]) * BD_DL_SIZE)
+    elif strBytes[-1].lower() == "n":
+        return(fnIsInt(strBytes[:-1]) * BD_XL3_SIZE)
+    elif strBytes[-1].lower() == "o":
+        return(fnIsInt(strBytes[:-1]) * BD_XL4_SIZE)
+    elif strBytes[-1].lower() == "o":
+        return(fnIsInt(strBytes[:-1]) * MD_SL_SIZE)
+    elif strBytes[-1].lower() == "o":
+        return(fnIsInt(strBytes[:-1]) * MD_DL_SIZE)
     else:
         return(fnIsInt(strBytes))
 
