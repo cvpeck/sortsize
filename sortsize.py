@@ -1,4 +1,4 @@
-#!/opt/local/bin/python
+#!/bin/python
 
 """@package sortsize
 Sorts files into optimum packing for various size media
@@ -73,7 +73,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
     # larger than intMinimum (that also excludes directories) and sort it.
     lstSizes = [(os.stat(x)[6], x) for x in os.listdir(".") if intMaximum >= os.stat(x)[6] >= intMinimum]
     if len(lstSizes) == 0:
-        if (!blnQuiet): print("There are no suitable files here.")
+        if (not blnQuiet): print("There are no suitable files here.")
         sys.exit()
     if intFuse > 0:
         lstSizes.sort(cmp=lambda x,y: cmp(x[1].lower(), y[1].lower()))
@@ -113,7 +113,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
 
         for intCounter in range(1, intMaxFiles + 1):
             if blnFinishedAll:
-                if (!blnQuiet): print("Filled all available space.\n")
+                if (not blnQuiet): print("Filled all available space.\n")
                 break
             if blnVerbose: print("Checking for %s file combinations..." % intCounter)
 
@@ -213,7 +213,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
     # Print the files
     intCurrentSize = 0
     lstFileList = []
-    if (!blnQuiet): print "Files:"
+    if (not blnQuiet): print "Files:"
     if blnLogging: logging.debug("lstFiles = %r" % lstFiles)
     for intIndex in lstFiles:
         lstFileList.append((lstSizes[intIndex][1], lstSizes[intIndex][0]))
@@ -229,7 +229,7 @@ def fnFind(intMaximum, intMinimum, intMargin, blnListFiles = False, blnVerbose =
         else:
             print "%s %s" % (string.join(["    " + strItem.ljust(50) for strItem in strFilename.split("\n")], "\n"), ("(" + fnDotify(intFilesize)).rjust(17) + " bytes)")
         intCurrentSize += intFilesize
-    if (!blnQuiet): print "\nTotal: %s/%s bytes (%s%%)." % (fnDotify(intCurrentSize), fnDotify(intMaximum), str(intCurrentSize * 100 / intMaximum))
+    if (not blnQuiet): print "\nTotal: %s/%s bytes (%s%%)." % (fnDotify(intCurrentSize), fnDotify(intMaximum), str(intCurrentSize * 100 / intMaximum))
 
 def fnTransform(strBytes):
     """Expands strings containing "g", "m", "k", "d" or "c" (or "l" "m" "n" "o" "p" "q")to their numerical counterparts."""
